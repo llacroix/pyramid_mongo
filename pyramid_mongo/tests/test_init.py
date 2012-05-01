@@ -38,17 +38,83 @@ class Test_get_db(TestCase):
 
     def _callFUT(self, request, dbname=None):
         from pyramid_mongo import get_db
-        return get_db(request, dbname=dbname)
+        return get_db(request, name=dbname)
 
     def _makeRequest(self):
         request = testing.DummyRequest()
         # other things
+        request._mongo_dbs = dict()
+        request.registry.settings = dict()
         return request
 
+    def test_without_name(self):
+        request = self._makeRequest()
+        #del request.registry._mongo_conn
+        self.assertRaises(ConfigurationError, self._callFUT, request)
+    
+    def test_without_conn_with_name(self):
+        request = self._makeRequest()
+
+        if hasattr(request.registry, '_mongo_conn'):
+            delattr(request.registry, '_mongo_conn')
+
+        self.assertRaises(ConfigurationError, self._callFUT, request, 'fun')
+
+    def test_with_existing_db(self):
+        request = self._makeRequest()
+        request._mongo_dbs = dict(test=DummyDB())
+        db = self._callFUT(request, 'test')
+        self.assertEqual(db, request._mongo_dbs['test'])
+
+    def test_with_new_db(self):
+        request = self._makeRequest()
+        request.registry._mongo_conn = DummyConnection()
+        db = self._callFUT(request, 'test')
+        db2 = request._mongo_dbs['test']
+        self.assertEqual(db, db2)
+
+    def test_auth(self):
+        request = self._makeRequest()
+        request.registry._mongo_conn = DummyConnection()
+        
+        request.registry.settings['mongo.username'] = 'fun'
+        request.registry.settings['mongo.password'] = 'fusdn'
+        db = self._callFUT(request, 'test')
+        self.assertEqual(db.authenticated, False)
+
+        request.registry.settings['mongo.username'] = 'admin'
+        request.registry.settings['mongo.password'] = 'fun'
+        db = self._callFUT(request, 'test')
+        self.assertEqual(db.authenticated, True)
+
+
 class Test_includeme(TestCase):
+    def _callFUT(self, config):
+        from pyramid_mongo import includeme
+        return includeme(config)
 
     def setUp(self):
         self.config = testing.setUp()
 
     def tearDown(self):
         testing.tearDown()
+
+    def test_with_normal_config(self):
+
+        if hasattr(self.config.registry, '_mongo_conn'):
+            delattr(self.config.registry, '_mongo_conn')
+
+        self.config.registry.settings['mongo.uri'] = 'localhost'
+        self.config.registry.settings['mongo.db'] = 'blog'
+        self._callFUT(self.config)
+        self.assertEqual(hasattr(self.config.registry, '_mongo_conn'), True)
+
+class DummyDB(object):
+
+    def authenticate(self, username, password):
+        self.authenticated = username == 'admin' and password == 'fun'
+        return self.authenticated
+
+class DummyConnection(object):
+    def __getitem__(self, name):
+        return DummyDB()

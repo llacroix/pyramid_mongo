@@ -31,7 +31,7 @@ def get_db(request, name=None):
     db = mongodbs.get(dbname)
 
     if db is None:
-        conn = registry._mongo_conn
+        conn = getattr(registry, '_mongo_conn', None)
 
         if conn is None:
             raise ConfigurationError('There is no database connection available')
@@ -48,6 +48,7 @@ def get_db(request, name=None):
         db.authenticate(username, password)
 
     def end_request(request):
+        db.logout()
         db.connection.end_request() 
 
     request.add_finished_callback(end_request)
