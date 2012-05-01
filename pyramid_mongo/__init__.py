@@ -14,12 +14,7 @@ def get_connection(config):
     if uri is None:
         raise ConfigurationError('There is no configured "mongo.uri"')
 
-    conn = Connection(uri)
-
-    if conn is None:
-        raise ConfigurationError('Cannot create a connection with "mongo.uri"')
-
-    return conn
+    return Connection(uri)
 
 def get_db(request, name=None):
     dbname = name
