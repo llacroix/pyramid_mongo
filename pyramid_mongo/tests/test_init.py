@@ -13,7 +13,7 @@ class Test_get_connection(TestCase):
         testing.tearDown()
 
     def _callFUT(self, config):
-        from pyramid_zodbconn import get_connection
+        from pyramid_mongo import get_connection
         return get_connection(config)
 
     def test_without_include(self):
@@ -23,6 +23,7 @@ class Test_get_connection(TestCase):
         self.assertRaises(ConfigurationError, self._callFUT, self.config)
         
     def test_with_invalid_uri(self):
+        from pymongo.errors import ConfigurationError
         self.config.registry.settings['mongo.uri'] = "1"
         self.assertRaises(AutoReconnect, self._callFUT, self.config)
         self.config.registry.settings['mongo.uri'] = ""
@@ -36,7 +37,7 @@ class Test_get_connection(TestCase):
 class Test_get_db(TestCase):
 
     def _callFUT(self, request, dbname=None):
-        from pyramid_zodbconn import get_db
+        from pyramid_mongo import get_db
         return get_db(request, dbname=dbname)
 
     def _makeRequest(self):
