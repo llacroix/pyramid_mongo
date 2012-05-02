@@ -4,3 +4,4 @@
 .coverage
 nosetests.xml
 docs/_build
+docs/_themes

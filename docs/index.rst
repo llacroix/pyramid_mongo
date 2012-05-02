@@ -68,7 +68,7 @@ commonly in a Pyramid *root factory*:
 
     from pyramid_mongo import get_db
 
-    class MyModel(PersistentMapping):
+    class MyModel(object):
         __parent__ = __name__ = None
 
         def to_dict(self):
