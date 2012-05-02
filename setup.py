@@ -1,7 +1,9 @@
 from setuptools import setup, find_packages
-import sys, os
 
 version = '0.1'
+
+testing_extras = ['nose', 'coverage']
+docs_extras = ['Sphinx']
 
 setup(name='pyramid_mongo',
       version=version,
@@ -16,14 +18,19 @@ setup(name='pyramid_mongo',
       author_email='lamerstar@gmail.com',
       url='delicieuxgateau.ca',
       license='',
-      packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+      packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
+      test_suite="pyramid_mongo",
       install_requires=[
           # -*- Extra requirements: -*-
           'pyramid',
           'pymongo',
       ],
+      extras_require = {
+          'dev':testing_extras,
+          'docs':docs_extras,
+          },
       entry_points="""
       # -*- Entry points: -*-
       """,

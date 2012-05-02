@@ -6,7 +6,10 @@ USERNAME = 'mongo.username'
 PASSWORD = 'mongo.password'
 DBNAME = 'mongo.db'
 
-def get_connection(config):
+def get_connection(config, conn_cls=None):
+    if conn_cls is None:
+        conn_cls = Connection
+        
     registry = config.registry
 
     uri = registry.settings.get(URI)
@@ -14,7 +17,7 @@ def get_connection(config):
     if uri is None:
         raise ConfigurationError('There is no configured "mongo.uri"')
 
-    return Connection(uri)
+    return conn_cls(uri)
 
 def get_db(request, name=None):
     dbname = name
@@ -34,7 +37,8 @@ def get_db(request, name=None):
         conn = getattr(registry, '_mongo_conn', None)
 
         if conn is None:
-            raise ConfigurationError('There is no database connection available')
+            raise ConfigurationError(
+                'There is no database connection available')
 
         db = conn[dbname]
 
@@ -56,7 +60,8 @@ def get_db(request, name=None):
     return db
 
 
-def includeme(config):
+def includeme(config, get_connection=get_connection):
+    # get_connection passed for testing
     """
         Get a mongodb instance from the URI in the config file
         mongodb.uri

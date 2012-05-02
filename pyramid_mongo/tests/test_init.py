@@ -1,4 +1,3 @@
-import unittest                                                                                                                                        
 from pyramid import testing
 from unittest import TestCase
 from pyramid.exceptions import ConfigurationError
@@ -12,9 +11,9 @@ class Test_get_connection(TestCase):
     def tearDown(self):
         testing.tearDown()
 
-    def _callFUT(self, config):
+    def _callFUT(self, config, conn_cls=None):
         from pyramid_mongo import get_connection
-        return get_connection(config)
+        return get_connection(config, conn_cls)
 
     def test_without_include(self):
          self.assertRaises(ConfigurationError, self._callFUT, self.config)
@@ -31,8 +30,8 @@ class Test_get_connection(TestCase):
 
     def test_with_valid_uri(self):
         self.config.registry.settings['mongo.uri'] = "mongodb://localhost/"
-        conn = self._callFUT(self.config)
-        self.assertEqual(type(conn).__name__, 'Connection')
+        conn = self._callFUT(self.config, DummyConnection)
+        self.assertEqual(conn.uri, 'mongodb://localhost/')
 
 class Test_get_db(TestCase):
 
@@ -87,11 +86,20 @@ class Test_get_db(TestCase):
         db = self._callFUT(request, 'test')
         self.assertEqual(db.authenticated, True)
 
+    def test_endrequest_callback(self):
+        request = self._makeRequest()
+        conn = DummyConnection()
+        request.registry._mongo_conn = conn
+        db = self._callFUT(request, 'test')
+        db.connection = conn
+        request.finished_callbacks[0](request)
+        self.assertTrue(db.logged_out)
+        self.assertTrue(conn.ended)
 
 class Test_includeme(TestCase):
-    def _callFUT(self, config):
+    def _callFUT(self, config, get_connection):
         from pyramid_mongo import includeme
-        return includeme(config)
+        return includeme(config, get_connection)
 
     def setUp(self):
         self.config = testing.setUp()
@@ -100,14 +108,12 @@ class Test_includeme(TestCase):
         testing.tearDown()
 
     def test_with_normal_config(self):
-
-        if hasattr(self.config.registry, '_mongo_conn'):
-            delattr(self.config.registry, '_mongo_conn')
-
+        def get_connection(request):
+            return 'conn'
         self.config.registry.settings['mongo.uri'] = 'localhost'
         self.config.registry.settings['mongo.db'] = 'blog'
-        self._callFUT(self.config)
-        self.assertEqual(hasattr(self.config.registry, '_mongo_conn'), True)
+        self._callFUT(self.config, get_connection)
+        self.assertEqual(self.config.registry._mongo_conn, 'conn')
 
 class DummyDB(object):
 
@@ -115,6 +121,18 @@ class DummyDB(object):
         self.authenticated = username == 'admin' and password == 'fun'
         return self.authenticated
 
+    def logout(self):
+        self.logged_out = True
+
+        
+
 class DummyConnection(object):
+    def __init__(self, uri=None):
+        self.uri = uri
+
     def __getitem__(self, name):
         return DummyDB()
+
+    def end_request(self):
+        self.ended = True
+        
