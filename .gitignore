@@ -3,3 +3,4 @@
 .tox
 .coverage
 nosetests.xml
+docs/_build
