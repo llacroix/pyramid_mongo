@@ -1,15 +1,17 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.0'
+version = '0.1'
 
 setup(name='pyramid_mongo',
       version=version,
-      description="A simple package to handle mongodb in pyramid",
+      description="Mongodb support for pyramid",
       long_description="""\
+        This plugin lets you create a connection to a mongodb server and query its database.
+        It currently only support one database, one host and authentication
 """,
-      classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-      keywords='',
+      classifiers=[],
+      keywords='pymongo mongodb pyramid',
       author='Lo\xc3\xafc Faure-Lacroix',
       author_email='lamerstar@gmail.com',
       url='delicieuxgateau.ca',
@@ -19,6 +21,8 @@ setup(name='pyramid_mongo',
       zip_safe=False,
       install_requires=[
           # -*- Extra requirements: -*-
+          'pyramid',
+          'pymongo',
       ],
       entry_points="""
       # -*- Entry points: -*-
