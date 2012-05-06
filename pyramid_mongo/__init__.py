@@ -7,12 +7,22 @@ PASSWORD = 'mongo.password'
 DBNAME = 'mongo.db'
 
 def get_connection(config, conn_cls=None):
+    """get_connection creates a connection to one or more mongodb server. 
+       It take as argument a config that should have the "mongo.uri" set 
+       to a string separated by new lines for each server. 
+
+       The uri must be of a form acceptable by mongodb. 
+       http://www.mongodb.org/display/DOCS/Connections
+    """
+
     if conn_cls is None:
         conn_cls = Connection
         
     registry = config.registry
 
+    # Spliting configs to get more than one uri
     uri = registry.settings.get(URI)
+    uri = uri.splitlines()
 
     if uri is None:
         raise ConfigurationError('There is no configured "mongo.uri"')
@@ -20,6 +30,28 @@ def get_connection(config, conn_cls=None):
     return conn_cls(uri)
 
 def get_db(request, name=None):
+    """get_db opens a handle for a database using a connection.
+       the primary database is defined by the setting "mongo.db".
+
+       If passed "name" as argument, get_db will return a different 
+       database than the one set in the settings. 
+
+       If you have mongo.username and mongo.password set, it will try
+       to connecto to the database.
+
+       Here is an example
+       
+       mongo.uri = 127.0.0.1
+                   localhost
+       mongo.db = blog
+
+       mongo.username.blog = theuser
+       mongo.password.blog = thepassword
+
+       mongo.username.blog2 = theuser2
+       mongo.password.blog2 = thepassword2
+    """
+
     dbname = name
     registry = request.registry
 
@@ -45,8 +77,8 @@ def get_db(request, name=None):
         mongodbs[dbname] = db
         request._mongo_dbs = mongodbs
 
-    username = registry.settings.get(USERNAME)
-    password = registry.settings.get(PASSWORD)
+    username = registry.settings.get(USERNAME + '.' + dbname)
+    password = registry.settings.get(PASSWORD + '.' + dbname)
 
     if not username is None and not password is None:
         db.authenticate(username, password)
