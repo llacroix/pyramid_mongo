@@ -5,7 +5,7 @@ Overview
 --------
 
 A package which provides integration between the Pyramid web application
-server and the :term:`MongoDB` object database.
+server and the `MongoDB` object database.
 
 
 Installation
@@ -103,6 +103,7 @@ More Information
    :maxdepth: 1
 
    api.rst
+   tutorials/index.rst
    glossary.rst
 
 
