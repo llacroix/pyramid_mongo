@@ -91,10 +91,37 @@ configuration.
 When the request is finalized, the database you've opened via
 ``get_db`` will be freeed to the next thread.
 
-Examples
-++++++++
+Examples with authentication
+++++++++++++++++++++++++++++
 
-Some examples
+A config file with authentication should look like that
+
+.. code-block:: ini
+
+   [app:myapp]
+   ...
+   mongo.uri = mongodb://localhost/
+   mongo.db = mongo_pyramid
+   
+   mongo.username.mongo_pyramid = username
+   mongo.password.mongo_pyramid = password
+
+
+In this example, you can see that ``mongo.username`` and ``mongo.password`` is
+followed by a dot and the name of the database. In this example, the primary 
+database is ``mongo_pyramid``. That is why we have to set ``mongo.username.mongo_pyramid``
+and ``mongo.password.mongo_pyramid``
+
+If we had a different database from the primary one we could also add those settings like that
+
+.. code-block:: ini
+   mongo.username.other = username
+   mongo.password.other = password
+
+Keep in mind that each database has its own users. If you connect to ``pyramid_mongo``, it 
+won't connect to other database. On the other hand, if you set a password for the admin
+database, it should give you access to every other database. 
+
 
 More Information
 ----------------
