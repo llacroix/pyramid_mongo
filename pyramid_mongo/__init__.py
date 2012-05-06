@@ -20,12 +20,14 @@ def get_connection(config, conn_cls=None):
         
     registry = config.registry
 
-    # Spliting configs to get more than one uri
     uri = registry.settings.get(URI)
-    uri = uri.splitlines()
 
     if uri is None:
         raise ConfigurationError('There is no configured "mongo.uri"')
+
+    # Spliting configs to get more than one uri
+    if not isinstance(uri, list):
+        uri = uri.splitlines()
 
     return conn_cls(uri)
 

@@ -31,7 +31,7 @@ class Test_get_connection(TestCase):
     def test_with_valid_uri(self):
         self.config.registry.settings['mongo.uri'] = "mongodb://localhost/"
         conn = self._callFUT(self.config, DummyConnection)
-        self.assertEqual(conn.uri, 'mongodb://localhost/')
+        self.assertEqual(conn.uri[0], 'mongodb://localhost/')
 
 class Test_get_db(TestCase):
 
@@ -76,13 +76,13 @@ class Test_get_db(TestCase):
         request = self._makeRequest()
         request.registry._mongo_conn = DummyConnection()
         
-        request.registry.settings['mongo.username'] = 'fun'
-        request.registry.settings['mongo.password'] = 'fusdn'
+        request.registry.settings['mongo.username.test'] = 'fun'
+        request.registry.settings['mongo.password.test'] = 'fusdn'
         db = self._callFUT(request, 'test')
         self.assertEqual(db.authenticated, False)
 
-        request.registry.settings['mongo.username'] = 'admin'
-        request.registry.settings['mongo.password'] = 'fun'
+        request.registry.settings['mongo.username.test'] = 'admin'
+        request.registry.settings['mongo.password.test'] = 'fun'
         db = self._callFUT(request, 'test')
         self.assertEqual(db.authenticated, True)
 
