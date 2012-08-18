@@ -2,6 +2,7 @@ from pyramid.exceptions import ConfigurationError
 from pymongo import Connection
 
 URI = 'mongo.uri'
+MONGOENGINE = 'mongo.mongoengine'
 USERNAME = 'mongo.username'
 PASSWORD = 'mongo.password'
 DBNAME = 'mongo.db'
@@ -93,6 +94,17 @@ def get_db(request, name=None):
 
     return db
 
+def setup_mongoengine(config):
+    # Simple setup mongoengine 
+    print "Loading mongoengine"
+    registry = config.registry
+
+    connection._connections['default'] = config.registry._mongo_conn
+    connection._connection_settings['default'] = {
+        'name': registry.settings.get(DBNAME),
+        'username': registry.settings.get(USERNAME),
+        'password': registry.settings.get(PASSWORD),
+    }
 
 def includeme(config, get_connection=get_connection):
     # get_connection passed for testing
@@ -101,3 +113,7 @@ def includeme(config, get_connection=get_connection):
         mongodb.uri
     """
     config.registry._mongo_conn = get_connection(config)
+    
+    mongoengine = config.registry.settings.get(URI)
+    if mongoengine and config.registry._mongo_conn:
+        setup_mongoengine(config)
