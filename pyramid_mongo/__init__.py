@@ -1,4 +1,5 @@
 from pyramid.exceptions import ConfigurationError
+from pyramid.settings import asbool
 from pymongo import Connection
 
 URI = 'mongo.uri'
@@ -96,6 +97,7 @@ def get_db(request, name=None):
 
 def setup_mongoengine(config):
     # Simple setup mongoengine 
+    from mongoengine import connection
     print "Loading mongoengine"
     registry = config.registry
 
@@ -114,6 +116,6 @@ def includeme(config, get_connection=get_connection):
     """
     config.registry._mongo_conn = get_connection(config)
     
-    mongoengine = config.registry.settings.get(URI)
+    mongoengine = asbool(config.registry.settings.get(MONGOENGINE))
     if mongoengine and config.registry._mongo_conn:
         setup_mongoengine(config)
