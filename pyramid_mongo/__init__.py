@@ -7,6 +7,7 @@ MONGOENGINE = 'mongo.mongoengine'
 USERNAME = 'mongo.username'
 PASSWORD = 'mongo.password'
 DBNAME = 'mongo.db'
+GREENLETS = 'mongo.use_greenlets'
 
 def get_connection(config, conn_cls=None):
     """get_connection creates a connection to one or more mongodb server. 
@@ -23,6 +24,7 @@ def get_connection(config, conn_cls=None):
     registry = config.registry
 
     uri = registry.settings.get(URI)
+    greenlets = registry.settings.get(GREENLETS)
 
     if uri is None:
         raise ConfigurationError('There is no configured "mongo.uri"')
@@ -31,7 +33,11 @@ def get_connection(config, conn_cls=None):
     if not isinstance(uri, list):
         uri = uri.splitlines()
 
-    return conn_cls(uri)
+    kargs = {
+        'use_greenlets':  asbool(greenlets)
+    }
+
+    return conn_cls(uri, **kargs)
 
 def get_db(request, name=None):
     """get_db opens a handle for a database using a connection.
