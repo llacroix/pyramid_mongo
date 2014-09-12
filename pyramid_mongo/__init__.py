@@ -1,3 +1,4 @@
+from __future__ import print_function
 from pyramid.exceptions import ConfigurationError
 from pyramid.settings import asbool
 from pymongo import Connection
@@ -8,6 +9,7 @@ USERNAME = 'mongo.username'
 PASSWORD = 'mongo.password'
 DBNAME = 'mongo.db'
 GREENLETS = 'mongo.use_greenlets'
+
 
 def get_connection(config, conn_cls=None):
     """get_connection creates a connection to one or more mongodb server. 
@@ -104,7 +106,7 @@ def get_db(request, name=None):
 def setup_mongoengine(config):
     # Simple setup mongoengine 
     from mongoengine import connection
-    print "Loading mongoengine"
+    print("Loading mongoengine")
     registry = config.registry
 
     connection._connections['default'] = config.registry._mongo_conn
@@ -113,6 +115,7 @@ def setup_mongoengine(config):
         'username': registry.settings.get(USERNAME),
         'password': registry.settings.get(PASSWORD),
     }
+
 
 def includeme(config, get_connection=get_connection):
     # get_connection passed for testing

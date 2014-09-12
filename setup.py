@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.1'
+version = '0.2'
 
 testing_extras = ['nose', 'coverage']
 docs_extras = ['Sphinx']
@@ -27,10 +27,10 @@ setup(name='pyramid_mongo',
           'pyramid',
           'pymongo',
       ],
-      extras_require = {
-          'dev':testing_extras,
-          'docs':docs_extras,
-          },
+      extras_require={
+          'dev': testing_extras,
+          'docs': docs_extras,
+      },
       entry_points="""
       # -*- Entry points: -*-
       """,

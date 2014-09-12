@@ -3,6 +3,7 @@ from unittest import TestCase
 from pyramid.exceptions import ConfigurationError
 from pymongo.errors import AutoReconnect
 
+
 class Test_get_connection(TestCase):
 
     def setUp(self):
@@ -32,6 +33,7 @@ class Test_get_connection(TestCase):
         self.config.registry.settings['mongo.uri'] = "mongodb://localhost/"
         conn = self._callFUT(self.config, DummyConnection)
         self.assertEqual(conn.uri[0], 'mongodb://localhost/')
+
 
 class Test_get_db(TestCase):
 
@@ -96,6 +98,7 @@ class Test_get_db(TestCase):
         self.assertTrue(db.logged_out)
         self.assertTrue(conn.ended)
 
+
 class Test_includeme(TestCase):
     def _callFUT(self, config, get_connection):
         from pyramid_mongo import includeme
@@ -115,6 +118,7 @@ class Test_includeme(TestCase):
         self._callFUT(self.config, get_connection)
         self.assertEqual(self.config.registry._mongo_conn, 'conn')
 
+
 class DummyDB(object):
 
     def authenticate(self, username, password):
@@ -124,7 +128,6 @@ class DummyDB(object):
     def logout(self):
         self.logged_out = True
 
-        
 
 class DummyConnection(object):
     def __init__(self, uri=None):
@@ -135,4 +138,3 @@ class DummyConnection(object):
 
     def end_request(self):
         self.ended = True
-        

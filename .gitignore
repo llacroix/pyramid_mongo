@@ -1,5 +1,6 @@
 *.pyc
 *.egg-info
+.idea
 .tox
 .coverage
 nosetests.xml
