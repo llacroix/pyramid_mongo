@@ -1,7 +1,8 @@
-from __future__ import print_function
 from pyramid.exceptions import ConfigurationError
 from pyramid.settings import asbool
 from pymongo import Connection
+import logging
+log = logging.getLogger(__name__)
 
 URI = 'mongo.uri'
 MONGOENGINE = 'mongo.mongoengine'
@@ -106,7 +107,7 @@ def get_db(request, name=None):
 def setup_mongoengine(config):
     # Simple setup mongoengine 
     from mongoengine import connection
-    print("Loading mongoengine")
+    log.debug("Loading mongoengine")
     registry = config.registry
 
     connection._connections['default'] = config.registry._mongo_conn
